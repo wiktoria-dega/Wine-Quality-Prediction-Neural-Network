@@ -8,10 +8,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import classification_report, confusion_matrix
 import tensorflow as tf
+from tensorflow.keras.utils import to_categorical
 import model_evaluation
 
 
-df = pd.read_csv(r'C:\Users\Wiktoria\Desktop\Python Basics\Project4\wine_quality_data.csv.csv')
+df = pd.read_csv(r'C:\Users\Wiktoria\Desktop\Python Basics\Project4\wine_quality_data.csv')
 
 df.isna().sum()
 
@@ -90,7 +91,51 @@ model_evaluation.evaluate(modelLR, X_train_scaled,
 model_evaluation.evaluate(modelLR, X_test_scaled, 
                           y_test,'Logistic Regression - Test')
 
+#label range shift
+y_train_shifted = y_train - 4
+y_test_shifted = y_test - 4
+
+#labels conversion to one-hot vectors
+y_train_one_hot = to_categorical(y_train_shifted)
+y_test_one_hot = to_categorical(y_test_shifted)
+
+#check the shape of labels
+print(y_train_one_hot.shape)
+print(y_test_one_hot.shape)
+
+
 #neural network
+#input layer
 model = tf.keras.models.Sequential()
+model.add(tf.keras.layers.Dense(5, activation='relu', input_shape = (X_train_scaled.shape[1], )))
+#hidden layers
+model.add(tf.keras.layers.Dense(4, activation='relu'))
+model.add(tf.keras.layers.Dense(3, activation='relu'))
+#output layer
+model.add(tf.keras.layers.Dense(4, activation='softmax'))
 
 
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+model.summary()
+
+#model training
+history = model.fit(X_train_scaled, y_train_one_hot, validation_data=(X_test_scaled, y_test_one_hot), epochs=100, verbose=1)
+
+
+plt.figure()
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.legend(['taining', 'validation'])
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.title('Loss curve during model training')
+
+
+plt.figure()
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.legend(['taining', 'validation'])
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.title('Accuracy curve during model training')
