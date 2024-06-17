@@ -10,7 +10,9 @@ from sklearn.metrics import classification_report, confusion_matrix
 import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
 import model_evaluation
-
+import network_model_evaluation
+import numpy as np
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
 
 df = pd.read_csv(r'C:\Users\Wiktoria\Desktop\Python Basics\Project4\wine_quality_data.csv')
 
@@ -120,8 +122,8 @@ model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accur
 model.summary()
 
 #model training
-history = model.fit(X_train_scaled, y_train_one_hot, validation_data=(X_test_scaled, y_test_one_hot), epochs=100, verbose=1)
-
+history = model.fit(X_train_scaled, y_train_one_hot, 
+                    validation_data=(X_test_scaled, y_test_one_hot), epochs=100, verbose=1)
 
 plt.figure()
 plt.plot(history.history['loss'])
@@ -139,3 +141,9 @@ plt.legend(['taining', 'validation'])
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.title('Accuracy curve during model training')
+
+
+network_model_evaluation.evaluate_network(model, X_train_scaled, X_test_scaled,
+                                          y_train_one_hot, y_test_one_hot)
+
+
