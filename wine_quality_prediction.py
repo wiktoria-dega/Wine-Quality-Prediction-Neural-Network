@@ -13,6 +13,7 @@ import model_evaluation
 import network_model_evaluation
 import numpy as np
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
+from pymongo import MongoClient
 
 df = pd.read_csv(r'C:\Users\Wiktoria\Desktop\Python Basics\Project4\wine_quality_data.csv')
 
@@ -143,7 +144,22 @@ plt.ylabel('Accuracy')
 plt.title('Accuracy curve during model training')
 
 
-network_model_evaluation.evaluate_network(model, X_train_scaled, X_test_scaled,
+network_model_evaluation.evaluate(model, X_train_scaled, X_test_scaled,
                                           y_train_one_hot, y_test_one_hot)
 
 
+def save_to_db(data, database_name='wine_quality_database', collection_name='wine_quality'):
+
+    client = MongoClient('mongodb://localhost:27017/')
+    db = client[database_name]
+    collection = db[collection_name] 
+    
+    
+    collection.insert_many(data)
+    
+    for doc in collection.find():   
+        print(doc)
+
+
+data = df_resampled.to_dict('records')
+save_to_db(data)
